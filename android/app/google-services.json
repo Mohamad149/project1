@@ -1,0 +1,105 @@
+{
+  "project_info": {
+    "project_number": "1000714971794",
+    "project_id": "booking-app-4ed31",
+    "storage_bucket": "booking-app-4ed31.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000714971794:android:9764ad4c417422c268944b",
+        "android_client_info": {
+          "package_name": "com.example.finalproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcQbE3m_rDWEcaB9VkG2jzwnQ2IYMr-HU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000714971794:android:8c0e90bac79fe98868944b",
+        "android_client_info": {
+          "package_name": "com.example.firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcQbE3m_rDWEcaB9VkG2jzwnQ2IYMr-HU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000714971794:android:a2c74a96f1b395bc68944b",
+        "android_client_info": {
+          "package_name": "com.example.phase4"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcQbE3m_rDWEcaB9VkG2jzwnQ2IYMr-HU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000714971794:android:e5dae942cf9ae57f68944b",
+        "android_client_info": {
+          "package_name": "com.example.untitled17"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcQbE3m_rDWEcaB9VkG2jzwnQ2IYMr-HU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000714971794:android:73250c58b8aa763468944b",
+        "android_client_info": {
+          "package_name": "myproject1.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcQbE3m_rDWEcaB9VkG2jzwnQ2IYMr-HU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
