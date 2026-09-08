@@ -6,6 +6,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'admin/app/admin_app.dart';
 import 'admin/features/auth/admin_session.dart';
+import 'admin/features/requests/requests_repository.dart';
 import 'admin/features/users/users_repository.dart';
 import 'firebase_options.dart';
 
@@ -27,10 +28,15 @@ Future<void> main() async {
     firestore: FirebaseFirestore.instance,
   );
 
+  final requestsRepository = RequestsRepository(
+    firestore: FirebaseFirestore.instance,
+  );
+
   runApp(
     AdminApp(
       session: session,
       usersRepository: usersRepository,
+      requestsRepository: requestsRepository,
     ),
   );
 

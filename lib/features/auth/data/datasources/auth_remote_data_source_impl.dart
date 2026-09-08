@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/error/exception.dart';
@@ -5,9 +6,10 @@ import '../models/user_model.dart';
 import 'auth_remote_data_source.dart';
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  AuthRemoteDataSourceImpl(this._firebaseAuth);
+  AuthRemoteDataSourceImpl(this._firebaseAuth, this._firestore);
 
   final FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore _firestore;
 
   @override
   Stream<UserModel?> watchAuthState() {
@@ -62,11 +64,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await user.updateDisplayName(cleanName);
       await user.reload();
 
-      return UserModel(
+      final userModel = UserModel(
         id: user.uid,
         name: cleanName,
         email: user.email ?? email.trim(),
       );
+
+      await _firestore
+          .collection('users')
+          .doc(userModel.id)
+          .set(userModel.toFirestore());
+
+      return userModel;
     } on FirebaseAuthException catch (error) {
       throw AppException(_getMessage(error));
     }
