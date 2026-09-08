@@ -6,6 +6,7 @@ import '../../../app/route_app.dart';
 import '../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../auth/presentation/bloc/auth/auth_event.dart';
 import '../../requests/domain/entity/service_request.dart';
+import '../../requests/domain/usecase/delete_request.dart';
 import '../../requests/presentation/bloc/my_requests/my_requests_bloc.dart';
 import '../../requests/presentation/bloc/my_requests/my_requests_event.dart';
 import '../../requests/presentation/bloc/my_requests/my_requests_state.dart';
@@ -61,13 +62,7 @@ class HomePage extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final request = requests[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(request.title),
-                    subtitle: Text(request.category),
-                    trailing: _StatusChip(status: request.status),
-                  ),
-                );
+                return _RequestCard(request: request);
               },
             );
           },
@@ -86,6 +81,90 @@ class HomePage extends StatelessWidget {
           },
           icon: const Icon(Icons.add),
           label: const Text('New Request'),
+        ),
+      ),
+    );
+  }
+}
+
+class _RequestCard extends StatelessWidget {
+  const _RequestCard({required this.request});
+
+  final ServiceRequest request;
+
+  bool get _isPending => request.status == RequestStatus.pending;
+
+  Future<void> _edit(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider<SubmitRequestBloc>(
+          create: (_) => sl<SubmitRequestBloc>(),
+          child: NewRequestPage(existingRequest: request),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _delete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Request'),
+        content: Text('Delete "${request.title}"? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+
+    try {
+      await sl<DeleteRequest>()(request.id);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Request deleted.')),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not delete your request.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Text(request.title),
+        subtitle: Text(request.category),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _StatusChip(status: request.status),
+            if (_isPending) ...[
+              IconButton(
+                tooltip: 'Edit',
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: () => _edit(context),
+              ),
+              IconButton(
+                tooltip: 'Delete',
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                onPressed: () => _delete(context),
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -19,7 +19,9 @@ import '../features/requests/data/datasource/request_remote_data_source.dart';
 import '../features/requests/data/datasource/request_remote_data_source_impl.dart';
 import '../features/requests/data/repository/requests_repository_impl.dart';
 import '../features/requests/domain/repository/requests_repository.dart';
+import '../features/requests/domain/usecase/delete_request.dart';
 import '../features/requests/domain/usecase/submit_request.dart';
+import '../features/requests/domain/usecase/update_request.dart';
 import '../features/requests/domain/usecase/watch_my_requests.dart';
 import '../features/requests/presentation/bloc/my_requests/my_requests_bloc.dart';
 import '../features/requests/presentation/bloc/submit_request/submit_request_bloc.dart';
@@ -78,20 +80,29 @@ Future<void> setupDependencies() async {
   );
 
   // Requests feature
-  sl.registerLazySingleton<RequestRemoteDataSource>(
+  sl.registerLazySingleton<RequestsRemoteDataSource>(
         () => RequestsRemoteDataSourceImpl(sl<FirebaseFirestore>(), sl<FirebaseAuth>()),
-);
-   sl.registerLazySingleton<RequestsRepository>(
-         () => RequestsRepositoryImpl(sl<RequestRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<RequestsRepository>(
+        () => RequestsRepositoryImpl(sl<RequestsRemoteDataSource>()),
   );
   sl.registerLazySingleton<SubmitRequest>(
         () => SubmitRequest(sl<RequestsRepository>()),
+  );
+  sl.registerLazySingleton<UpdateRequest>(
+        () => UpdateRequest(sl<RequestsRepository>()),
+  );
+  sl.registerLazySingleton<DeleteRequest>(
+        () => DeleteRequest(sl<RequestsRepository>()),
   );
   sl.registerLazySingleton<WatchMyRequests>(
         () => WatchMyRequests(sl<RequestsRepository>()),
   );
   sl.registerFactory<SubmitRequestBloc>(
-        () => SubmitRequestBloc(submitRequest: sl<SubmitRequest>()),
+        () => SubmitRequestBloc(
+      submitRequest: sl<SubmitRequest>(),
+      updateRequest: sl<UpdateRequest>(),
+    ),
   );
   sl.registerFactory<MyRequestsBloc>(
         () => MyRequestsBloc(watchMyRequests: sl<WatchMyRequests>()),

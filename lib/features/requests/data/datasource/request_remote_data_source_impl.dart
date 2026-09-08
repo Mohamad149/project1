@@ -5,7 +5,7 @@ import '../../../../core/error/exception.dart';
 import '../models/request_model.dart';
 import 'request_remote_data_source.dart';
 
-class RequestsRemoteDataSourceImpl implements RequestRemoteDataSource {
+class RequestsRemoteDataSourceImpl implements RequestsRemoteDataSource {
   RequestsRemoteDataSourceImpl(this._firestore, this._firebaseAuth);
 
   final FirebaseFirestore _firestore;
@@ -44,7 +44,34 @@ class RequestsRemoteDataSourceImpl implements RequestRemoteDataSource {
   }
 
   @override
-  Stream<List<RequestModel>> watchMyRequest() {
+  Future<void> updateRequest({
+    required String requestId,
+    required String title,
+    required String description,
+    required String category,
+  }) async {
+    try {
+      await _collection.doc(requestId).update({
+        'title': title.trim(),
+        'description': description.trim(),
+        'category': category,
+      });
+    } catch (_) {
+      throw AppException('Could not update your request.');
+    }
+  }
+
+  @override
+  Future<void> deleteRequest(String requestId) async {
+    try {
+      await _collection.doc(requestId).delete();
+    } catch (_) {
+      throw AppException('Could not delete your request.');
+    }
+  }
+
+  @override
+  Stream<List<RequestModel>> watchMyRequests() {
     final user = _firebaseAuth.currentUser;
     if (user == null) {
       return Stream.value(const []);

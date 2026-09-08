@@ -5,7 +5,16 @@ abstract class RequestsRepository {
     required String title,
     required String description,
     required String category,
-});
+  });
+
+  Future<void> updateRequest({
+    required String requestId,
+    required String title,
+    required String description,
+    required String category,
+  });
+
+  Future<void> deleteRequest(String requestId);
 
   Stream<List<ServiceRequest>> watchMyRequests();
 }

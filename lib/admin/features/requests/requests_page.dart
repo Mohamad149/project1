@@ -14,6 +14,8 @@ class RequestsPage extends StatefulWidget {
 }
 
 class _RequestsPageState extends State<RequestsPage> {
+  static const categories = ['General', 'Technical Support', 'Billing', 'Other'];
+
   Future<void> _updateStatus(String id, String status) async {
     try {
       await widget.repository.updateRequestStatus(id, status);
@@ -62,6 +64,136 @@ class _RequestsPageState extends State<RequestsPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _editRequest(String id, Map<String, dynamic> data) async {
+    final titleController = TextEditingController(text: (data['title'] ?? '').toString());
+    final descriptionController = TextEditingController(
+      text: (data['description'] ?? '').toString(),
+    );
+    String category = categories.contains(data['category'])
+        ? data['category'] as String
+        : categories.first;
+    final formKey = GlobalKey<FormState>();
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Edit Request'),
+          content: SizedBox(
+            width: 420,
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Title'),
+                    validator: (value) =>
+                    (value?.trim().isEmpty ?? true) ? 'Title is required.' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    initialValue: category,
+                    decoration: const InputDecoration(labelText: 'Category'),
+                    items: categories
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) setDialogState(() => category = value);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: descriptionController,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      alignLabelWithHint: true,
+                    ),
+                    validator: (value) =>
+                    (value?.trim().isEmpty ?? true) ? 'Description is required.' : null,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  Navigator.pop(context, true);
+                }
+              },
+              child: const Text('Save Changes'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (saved != true) return;
+    if (!mounted) return;
+
+    try {
+      await widget.repository.updateRequestDetails(
+        id,
+        title: titleController.text,
+        description: descriptionController.text,
+        category: category,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Request updated.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not update request: $error')),
+      );
+    }
+  }
+
+  Future<void> _deleteRequest(String id, String title) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Request'),
+        content: Text('Delete "$title"? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!mounted) return;
+
+    try {
+      await widget.repository.deleteRequest(id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Request deleted.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not delete request: $error')),
+      );
+    }
   }
 
   @override
@@ -131,6 +263,19 @@ class _RequestsPageState extends State<RequestsPage> {
                                 onPressed: isPending
                                     ? () => _updateStatus(doc.id, 'declined')
                                     : null,
+                              ),
+                              IconButton(
+                                tooltip: 'Edit',
+                                icon: const Icon(Icons.edit_outlined),
+                                onPressed: () => _editRequest(doc.id, data),
+                              ),
+                              IconButton(
+                                tooltip: 'Delete',
+                                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                onPressed: () => _deleteRequest(
+                                  doc.id,
+                                  (data['title'] ?? '').toString(),
+                                ),
                               ),
                             ],
                           ),
